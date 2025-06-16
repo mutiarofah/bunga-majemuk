@@ -44,18 +44,22 @@ def main():
         format="%.1f",
         help="Tingkat bunga per tahun dalam persentase."
     )
-    compounding_frequency = st.sidebar.selectbox(
+    # Perbaikan di sini: Ambil nilai dari dictionary yang dipilih
+    compounding_options = {
+        "Tahunan (1x/tahun)": 1,
+        "Semi-Tahunan (2x/tahun)": 2,
+        "Kuartalan (4x/tahun)": 4,
+        "Bulanan (12x/tahun)": 12,
+        "Harian (365x/tahun)": 365
+    }
+    selected_compounding_text = st.sidebar.selectbox(
         "Frekuensi Penggabungan Bunga",
-        {
-            "Tahunan (1x/tahun)": 1,
-            "Semi-Tahunan (2x/tahun)": 2,
-            "Kuartalan (4x/tahun)": 4,
-            "Bulanan (12x/tahun)": 12,
-            "Harian (365x/tahun)": 365
-        },
-        format_func=lambda x: list(x.keys())[list(x.values()).index(x)], # Menampilkan nama frekuensi
+        list(compounding_options.keys()), # Tampilkan kunci (nama frekuensi)
+        index=0, # Default Tahunan
         help="Seberapa sering bunga dihitung dan ditambahkan ke pokok."
     )
+    compounding_frequency = compounding_options[selected_compounding_text] # Ambil nilai berdasarkan kunci yang dipilih
+
     years = st.sidebar.number_input(
         "Jangka Waktu (Tahun)",
         min_value=1,
@@ -90,20 +94,26 @@ def main():
         animation_placeholder = st.empty()
         
         # Simulasi pertumbuhan tahun per tahun (sederhana)
-        current_amount = principal
+        current_amount_for_animation = principal # Gunakan variabel terpisah untuk animasi
         for year in range(1, years + 1):
-            # Hitung pertumbuhan untuk tahun ini saja (bukan dari awal)
-            yearly_growth = current_amount * (annual_rate / 100)
-            
             # Ini adalah simulasi sederhana untuk visualisasi,
             # tidak seakurat perhitungan bunga majemuk total
             # untuk setiap tahun secara terpisah dari rumus awal
-            current_amount += yearly_growth / compounding_frequency # bagi per frekuensi agar visual lebih smooth
+            # Untuk visualisasi yang lebih akurat per tahun,
+            # Anda perlu menghitung bunga majemuk penuh per tahun
+            # atau per periode compounding dalam loop ini.
+            # Namun, untuk animasi pertumbuhan sederhana, pendekatan ini cukup.
+            
+            # Hitung pertumbuhan untuk tahun ini berdasarkan rumus bunga majemuk
+            # Ini akan lebih akurat untuk visualisasi tahunan
+            amount_at_year_start = principal * (1 + r / n)(n * (year - 1))
+            amount_at_year_end = principal * (1 + r / n)(n * year)
+            current_amount_for_animation = amount_at_year_end
             
             # Batasi tampilan agar tidak terlalu cepat jika tahun banyak
             if years <= 20 or year % 2 == 0 or year == years: # Tampilkan setiap tahun jika <20, atau setiap 2 tahun, atau tahun terakhir
                 animation_placeholder.markdown(
-                    f"<h3 style='text-align: center;'>Tahun {year}: Rp {current_amount:,.0f} {'📈' * (year % 5 + 1)}</h3>",
+                    f"<h3 style='text-align: center;'>Tahun {year}: Rp {current_amount_for_animation:,.0f} {'📈' * (year % 5 + 1)}</h3>",
                     unsafe_allow_html=True
                 )
                 time.sleep(0.2 if years < 10 else 0.05) # Atur kecepatan animasi
