@@ -7,9 +7,17 @@ Original file is located at
     https://colab.research.google.com/drive/10qEm93i3pN8ZIppu1EdrMN5KF6Kisbmn
 """
 
+# Instal Streamlit dan pyngrok
 !pip install streamlit pyngrok --quiet
 
-kode = """
+# Menggunakan perintah `mkdir -p` untuk memastikan direktori ada
+!mkdir -p bunga_majemuk_app
+
+# Nama file aplikasi Streamlit
+app_file_name = "bunga_majemuk_app/app.py"
+
+# Tulis kode Streamlit ke dalam file
+kode_streamlit = """
 import streamlit as st
 import time # Untuk simulasi animasi loading
 
@@ -19,7 +27,7 @@ st.set_page_config(
 )
 
 st.title("💰 Kalkulator Bunga Majemuk Interaktif")
-st.markdown("""
+st.markdown(\"\"\"
     Hitung pertumbuhan investasi Anda seiring waktu dengan efek compounding!
     Formula Bunga Majemuk: $A = P (1 + r/n)^{nt}$
     Dimana:
@@ -28,7 +36,7 @@ st.markdown("""
     - $r$ = Tingkat bunga tahunan (dalam desimal)
     - $n$ = Jumlah kali bunga diterapkan per tahun
     - $t$ = Jumlah tahun uang diinvestasikan atau dipinjam
-""")
+\"\"\")
 
 st.sidebar.header("Pengaturan Investasi")
 
@@ -91,18 +99,14 @@ st.markdown("---")
 st.write("Dibuat dengan ❤️ oleh program Python")
 """
 
-    st.write(kode)
+with open(app_file_name, "w") as f:
+    f.write(kode_streamlit)
 
+print(f"Kode Streamlit telah disimpan ke {app_file_name}")
+
+# Pastikan Anda telah mengganti 'YOUR_AUTH_TOKEN' dengan token ngrok Anda yang sebenarnya.
+# Anda bisa mendapatkannya dari https://dashboard.ngrok.com/get-started/your-authtoken
 !ngrok config add-authtoken 2xzHjWjbPUYqBgRJMNfhHfAZjG5_2PQT5khKCZRZU8GPP76cY
 
+# Membunuh proses Streamlit yang mungkin masih berjalan sebelumnya
 !pkill -f streamlit
-
-from pyngrok import ngrok
-
-# Jalankan streamlit sebagai background process
-!streamlit run suhu_app.py &>/dev/null &
-
-# Hubungkan ke Streamlit via ngrok (versi baru)
-public_url = ngrok.connect(addr="8501", proto="http")
-print("Aplikasi bisa diakses di link berikut:")
-print(public_url)
